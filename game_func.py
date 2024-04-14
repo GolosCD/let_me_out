@@ -1,6 +1,8 @@
 # coding: utf-8
+from typing import Optional
 
-def list_item_load(file_name=None):
+
+def list_item_load(file_name: Optional[str] = None) -> list[list[str]]:
     ''' Контекстный менеджер загрузки файла списка предметов'''
 
     if not file_name:

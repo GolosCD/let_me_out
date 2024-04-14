@@ -1,4 +1,3 @@
-
 # coding: utf-8
 import random as r
 from game_func import list_item_load
@@ -6,16 +5,17 @@ import game_text as gt
 
 
 class Locals:
-    ''' Класс используется для генерации случайной локации '''
+    '''Класс используется для генерации случайной локации'''
 
     def __init__(self):
+        # случайный выбор локации
         self.local_name = r.choice(
             ['Вход на кладбище', 'Старая Часовня', 'Безымянный склеп', 'Могила графа Д.'])
 
     def print_local(self):
         '''Метод информирует игрока о локации куда он попал'''
 
-        print(f'Вы пришли в локацию {self.local_name}')
+        print(f'Вы пришли в район кладбища, где стоит {self.local_name}')
         print()
 
     def endgame_local(self) -> bool:
@@ -27,9 +27,10 @@ class Locals:
 
 
 class Item:
-    ''' Класс представляет собой предмет '''
+    '''Класс представляет собой предмет'''
 
-    def __init__(self, type_item, name, param, type_param, desc=None):
+    def __init__(self, type_item: str, name: str,
+                 param: int, type_param: str, desc=None):
         self.name: str = name  # Имя предмета
         self.param = int(param)  # Параметр предмета
         self.type_item: str = type_item  # Тип предмета
@@ -38,14 +39,19 @@ class Item:
 
 
 class DictItem:
+    ''' Класс представляет собой словарь предметов,
+        Данный класс используется для генерации случайного предмета'''
 
     @staticmethod
     def load_items() -> dict[str:list[Item]]:
+        '''Статистический метод для загрузки предметов из словаря'''
+
         list_items: list = list_item_load()
         result_dict = {}
 
         for item in list_items:
-            # item[0] - содержит тип предмета(head,hand,body,legs,key)
+            # item[0] - этот срез содержит тип
+            # предмета(head,hand,body,legs,key)
             result_dict.setdefault(item[0], []).append(Item(*item))
         return result_dict
 
@@ -72,10 +78,10 @@ class GetItem:
             return (Item('key', 'Большой ржавый ключ от ворот кладбища', '1', 'def'))
         else:
             # случайный тип предмета
-            type_item = r.choice(['hand', 'hand', 'head', 'body', 'leg'])
+            type_item: str = r.choice(['hand', 'hand', 'head', 'body', 'leg'])
 
             # случайный предмет на основе случайного типа предмета
-            item = r.choice(cls.all_items.get(type_item, None))
+            item: str = r.choice(cls.all_items.get(type_item, None))
 
             # возвращаем экземпляр предмета
             return item
@@ -101,7 +107,7 @@ class Monster(GetItem):
     @staticmethod
     def __get_hp() -> int:
         '''Метод возвращает рандомно сгерированное hp в диопазоне от 5 до 7 '''
-        return r.randint(5, 7)
+        return r.randint(3, 6)
 
     @staticmethod
     def __get_attack() -> int:
@@ -139,8 +145,8 @@ class Player():
     Персонаж имеет атрибуты : имя, здоровье, атаку и инвентарь.
     Атрибуты определяются статистическими методами.'''
 
-    default_attack = 3
-    default_hp = 6
+    default_attack: int = 3
+    default_hp: int = 7
 
     def __init__(self, name='Безымянный'):
         self.hp: int = type(self).default_hp
@@ -149,7 +155,7 @@ class Player():
         self.bonus_param = {'hand': 0, 'head': 0, 'body': 0, 'leg': 0}
         self.inventory = {}
 
-    def put_item(self, new_item: Item):
+    def put_item(self, new_item: Item) -> None:
         '''Метод отвечает за логику добавления предмета в инвентарь'''
         # получаем тип нового предмета это hand/head/body/leg
         new_item_type: str = new_item.type_item
@@ -186,7 +192,7 @@ class Player():
         self.bonus_param[new_item_type] += new_item_param
 
     @staticmethod
-    def check_input(func):
+    def check_input(func) -> callable:
         '''Декоратор, проверяющий ввод пользователя на корректность'''
 
         def wrapper(self):
@@ -215,8 +221,7 @@ class Player():
         return wrapper
 
     @check_input
-    def get_attack_player(self, keyboard_input: int |
-                          None = None) -> str | None:
+    def get_attack_player(self, keyboard_input: int = None) -> str:
         '''Метод возвращает часть тела, которую игрок выбрал для нанесение удара '''
 
         # словарь с частями тела для удара
@@ -231,8 +236,7 @@ class Player():
 
     @check_input
     # Если будет None, то raise ValueError
-    def get_defence_player(self, keyboard_input: int |
-                           None = None) -> str | None:
+    def get_defence_player(self, keyboard_input: int = None) -> str:
         '''Метод возращает часть тела,которую игрок выбрал для защиты '''
 
         # словарь с частями тела для защиты
@@ -253,7 +257,7 @@ class Player():
 
 class TakeItem:
 
-    def __init__(self, player, monster):
+    def __init__(self, player: Player, monster: Monster):
         self.player = player
         self.monster = monster
 
@@ -262,7 +266,7 @@ class TakeItem:
         '''Декоратор, проверяющий ввод пользователя на корректность'''
 
         def wrapper(self):
-            flag = True
+            flag: bool = True
             print(f'Из монстра выпадает предмет {self.monster.item.name}')
             print('Хотите использовать этот предмет? 1 - Да, 2 - Нет, ')
             print()
@@ -309,11 +313,11 @@ class TakeItem:
 class Fight:
     '''Класс для управление логикой между игроком и противником.'''
 
-    def __init__(self, player, monster):
+    def __init__(self, player: Player, monster: Monster):
         self.player = player
         self.monster = monster
 
-    def check_result(self, attak, defence):
+    def check_result(self, attak: str, defence: str):
         '''Метод определения успешности атаки и защиты игрока или монстра'''
 
         # если атака попала в защиту то, удар заблокирован
@@ -322,7 +326,9 @@ class Fight:
         return True  # успешный удар
 
     def fight(self):
-        flag = True
+        """ Метод для управления логикой боя между игроком и монстром """
+
+        flag: bool = True
         while flag:
             # выбор атаки для игрока
             target_attak_player: str = self.player.get_attack_player()
@@ -344,12 +350,13 @@ class Fight:
                     self.monster.hp -= self.player.attack
                     print(
                         f'Вы нанесли мощный удар {self.monster.name} в {target_attak_player}')
-                    print(f'У монстра осталось {self.monster.hp} здоровья')
+                    print(
+                        f'У монстра осталось {max(0,self.monster.hp)} здоровья')
                     print()
                 else:  # если игрок промахнулся
                     print(
-                        f'Промах, монстр угадал вашу атаку и защитил {target_defence_monster.lower()}')                    
-
+                        f'Промах, монстр угадал вашу атаку и защитил {target_defence_monster}')
+                    print()
                 if self.monster.hp <= 0:
                     print(f'Монстер {self.monster.name} побежден!')
                     print()
@@ -363,7 +370,8 @@ class Fight:
                         self.player.hp -= self.monster.attack
                         print(
                             f'Монстр нанес вам удар в {target_attak_monster}')
-                        print(f'У вас осталось {self.player.hp} здоровья')
+                        print(
+                            f'У вас осталось {max(0,self.player.hp)} здоровья')
                         print()
                         if self.player.hp <= 0:
                             print('Игрок погиб')
@@ -429,12 +437,11 @@ class GameEngine:
                 # начало боя с монстром
                 Fight(cls.player, monster).fight()
             else:
-                print(
-                    'Шаг за шагом, вы прокладываете свой путь сквозь жуткие локации кладбища, но вам повезло сейчас тут никого нет')
+                print('Шаг за шагом, вы прокладываете свой путь во мрак кладбищенской ночи, удача на вашей стороне, сейчас вокруг никого нет')
                 print()
                 input('Нажмите Enter....')
                 print()
-            cls.flag = cls.end(local)
+            cls.flag = cls.end(local)  # Проверка на конец игры
             if cls.flag:
                 cls.flag = False if cls.player.hp <= 0 else True
 
@@ -446,7 +453,7 @@ class GameEngine:
             print()
 
     @classmethod
-    def end(cls, local):
+    def end(cls, local: Locals) -> bool:
         ''' Метод отвечает за окончание игры.
             Если у игрока есть ключ от кладбища и он находится у ворот,
             то запускает предложение окончить игру.
