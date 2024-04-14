@@ -17,4 +17,5 @@
 let me out - это текстовая игра, разрабатывалась как первый пробный проект после прохождения курсов по Python.
 При написании игры был использован ООП подход с внедрением SOLID подхода
 
-
+### Верхнеуровневый алгоритм игры
+![schema](https://github.com/GolosCD/let_me_out/blob/main/let_me_out_architecture_logical_schema.drawio.png)
