@@ -346,6 +346,9 @@ class Fight:
                         f'Вы нанесли мощный удар {self.monster.name} в {target_attak_player}')
                     print(f'У монстра осталось {self.monster.hp} здоровья')
                     print()
+                else:  # если игрок промахнулся
+                    print(
+                        f'Промах, монстр угадал вашу атаку и защитил {target_defence_monster.lower()}')                    
 
                 if self.monster.hp <= 0:
                     print(f'Монстер {self.monster.name} побежден!')
@@ -373,9 +376,6 @@ class Fight:
                         print(
                             f'Монстр промахнулся ударив в {target_attak_monster}')
                         print()
-                else:  # если игрок промахнулся
-                    print(
-                        f'Промах, монстр угадал вашу атаку и защитил {target_defence_monster}')
             else:  # если  self.monster.hp <=0
                 print(f'Монстер {self.monster.name} побежден!')
                 input('Для продолжения путеществия нажмите Enter...')
